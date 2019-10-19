@@ -1,0 +1,60 @@
+﻿<Window x:Class="MazeRobotSimulator.View.MazeRobotSimulatorView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:MazeRobotSimulator.View"
+        mc:Ignorable="d"
+        Title="Maze Robot Simulator" 
+        MinHeight="540" 
+        MinWidth="960"
+        Height="540" 
+        Width="960">
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="booleanToVisibilityConverter"></BooleanToVisibilityConverter>
+        <Style x:Key="mazeCellStyle" TargetType="{x:Type Grid}">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding CellType}" Value="Wall">
+                    <Setter Property="Background" Value="Black"></Setter>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding CellType}" Value="Passage">
+                    <Setter Property="Background" Value="White"></Setter>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="0.05*"></RowDefinition>
+            <RowDefinition Height="0.95*"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition></ColumnDefinition>
+                <ColumnDefinition></ColumnDefinition>
+                <ColumnDefinition></ColumnDefinition>
+                <ColumnDefinition></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <Button Grid.Column="1" Margin="1,1,1,1" Background="Pink" Content="GENERATE MAZE" Command="{Binding GenerateMazeCommand}"></Button>
+            <Button Grid.Column="2" Margin="1,1,1,1" Background="Orange" Content="RESET MAZE" Command="{Binding ResetMazeCommand}"></Button>
+        </Grid>
+        <ItemsControl Grid.Row="1" 
+                      Name="mazeGrid" 
+                      Margin="5,5,5,5" 
+                      BorderBrush="Black"
+                      BorderThickness="3"
+                      Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}"
+                      ItemsSource="{Binding Maze.MazeCells, Mode=OneWay}">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <UniformGrid Columns="{Binding Maze.MazeWidthCells, Mode=OneWay}" Rows="{Binding Maze.MazeHeightCells, Mode=OneWay}"></UniformGrid>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Grid x:Name="mazeCell" Style="{StaticResource mazeCellStyle}"></Grid>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </Grid>
+</Window>
