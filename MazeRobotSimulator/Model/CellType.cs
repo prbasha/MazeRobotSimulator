@@ -6,6 +6,8 @@
     public enum CellType
     {
         Wall,
-        Passage
+        Passage,
+        Start,
+        End
     }
 }
