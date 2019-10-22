@@ -29,6 +29,8 @@ namespace MazeRobotSimulator.ViewModel
                 // Initialise the commands.
                 GenerateMazeCommand = new DelegateCommand(OnGenerateMaze, CanGenerateMaze);
                 ResetMazeCommand = new DelegateCommand(OnResetMaze, CanResetMaze);
+                StartSimulationCommand = new DelegateCommand(OnStartSimulation, CanStartSimulation);
+                StopSimulationCommand = new DelegateCommand(OnStopSimulation, CanStopSimulation);
             }
             catch (Exception ex)
             {
@@ -54,15 +56,24 @@ namespace MazeRobotSimulator.ViewModel
         public DelegateCommand GenerateMazeCommand { get; private set; }
 
         /// <summary>
-        /// Gets or sets the reset simulation command.
+        /// Gets or sets the reset maze command.
         /// </summary>
         public DelegateCommand ResetMazeCommand { get; private set; }
+
+        /// <summary>
+        /// Gets or sets the start simulation command.
+        /// </summary>
+        public DelegateCommand StartSimulationCommand { get; private set; }
+
+        /// <summary>
+        /// Gets or sets the stop simulation command.
+        /// </summary>
+        public DelegateCommand StopSimulationCommand { get; private set; }
 
         #endregion
 
         #region Methods
-
-
+        
         /// <summary>
         /// The OnGenerateMaze method is called to generate a new maze.
         /// </summary>
@@ -122,6 +133,64 @@ namespace MazeRobotSimulator.ViewModel
         }
 
         /// <summary>
+        /// The OnStartSimulation method is called to start the simulation.
+        /// </summary>
+        /// <param name="arg"></param>
+        public void OnStartSimulation(object arg)
+        {
+            try
+            {
+                if (Maze != null)
+                {
+                    Maze.StartSimulation();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("MazeGeneratorViewModel.OnStartSimulation(object arg): " + ex.ToString());
+            }
+        }
+
+        /// <summary>
+        /// The CanStartSimulation method is callled to determine if the simulation can be started.
+        /// </summary>
+        /// <param name="arg"></param>
+        /// <returns></returns>
+        public bool CanStartSimulation(object arg)
+        {
+            return Maze != null && Maze.CanStartSimulation;
+        }
+
+        /// <summary>
+        /// The OnStopSimulation method is called to stop the simulation.
+        /// </summary>
+        /// <param name="arg"></param>
+        public void OnStopSimulation(object arg)
+        {
+            try
+            {
+                if (Maze != null)
+                {
+                    Maze.StopSimulation();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("MazeGeneratorViewModel.OnStopSimulation(object arg): " + ex.ToString());
+            }
+        }
+
+        /// <summary>
+        /// The CanStopSimulation method is callled to determine if the simulation can be stoped.
+        /// </summary>
+        /// <param name="arg"></param>
+        /// <returns></returns>
+        public bool CanStopSimulation(object arg)
+        {
+            return Maze != null && Maze.CanStopSimulation;
+        }
+
+        /// <summary>
         /// The OnMazePropertyChanged method is called when a property in the Maze model class changes.
         /// </summary>
         /// <param name="sender"></param>
@@ -132,6 +201,8 @@ namespace MazeRobotSimulator.ViewModel
             {
                 GenerateMazeCommand.RaiseCanExecuteChanged();
                 ResetMazeCommand.RaiseCanExecuteChanged();
+                StartSimulationCommand.RaiseCanExecuteChanged();
+                StopSimulationCommand.RaiseCanExecuteChanged();
             }
             catch (Exception ex)
             {

@@ -1,7 +1,7 @@
 ﻿namespace MazeRobotSimulator.Model
 {
     /// <summary>
-    /// The MazeState enumeration represents the current state of the simulation.
+    /// The SimulationState enumeration represents the current state of the simulation.
     /// </summary>
     public enum SimulationState
     {

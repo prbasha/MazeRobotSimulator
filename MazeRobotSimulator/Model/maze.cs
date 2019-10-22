@@ -16,8 +16,8 @@ namespace MazeRobotSimulator.Model
     {
         #region Fields
 
-        private ObservableCollection<MazeCell> _mazeCells;              // The maze.
-        private SimulationState _mazeState = SimulationState.Default;   // The current state of the simulation.
+        private ObservableCollection<MazeCell> _mazeCells;              // The maze (a collection of maze cells).
+        private SimulationState _simulationState = SimulationState.Default;   // The current state of the simulation.
         private Random _randomNumberGenerator;                          // A random number generator.
         // TBD: add robot.
 
@@ -96,20 +96,22 @@ namespace MazeRobotSimulator.Model
         }
 
         /// <summary>
-        /// Gets or sets the maze state.
+        /// Gets or sets the simulation state.
         /// </summary>
         public SimulationState SimulationState
         {
             get
             {
-                return _mazeState;
+                return _simulationState;
             }
             private set
             {
-                _mazeState = value;
+                _simulationState = value;
                 RaisePropertyChanged("SimulationState");
                 RaisePropertyChanged("CanGenerateMaze");
                 RaisePropertyChanged("CanResetMaze");
+                RaisePropertyChanged("CanStartSimulation");
+                RaisePropertyChanged("CanStopSimulation");
             }
         }
 
@@ -125,45 +127,42 @@ namespace MazeRobotSimulator.Model
         }
 
         /// <summary>
-        /// Gets a boolean flag indicating if the simulation can be reset.
+        /// Gets a boolean flag indicating if the maze can be reset.
         /// </summary>
         public bool CanResetMaze
+        {
+            get
+            {
+                return SimulationState == SimulationState.MazeGenerated || SimulationState == SimulationState.Stopped;
+            }
+        }
+
+        /// <summary>
+        /// Gets a boolean flag indicating if the simulation can start.
+        /// </summary>
+        public bool CanStartSimulation
         {
             get
             {
                 return SimulationState == SimulationState.MazeGenerated;
             }
         }
-        
-        #endregion
-
-        #region Methods
 
         /// <summary>
-        /// The ResetMaze method is called to reset the maze.
+        /// Gets a boolean flag indicating if the simulation can stop.
         /// </summary>
-        public void ResetMaze()
+        public bool CanStopSimulation
         {
-            try
+            get
             {
-                if (CanResetMaze)
-                {
-                    // Create and populate the maze.
-                    MazeCells = new ObservableCollection<MazeCell>();
-                    while (MazeCells.Count != Constants.MazeWidth * Constants.MazeHeight)
-                    {
-                        MazeCells.Add(new MazeCell());
-                    }
-
-                    SimulationState = SimulationState.Default;  // Reset the simulation state.
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Maze.ResetMaze(): " + ex.ToString());
+                return SimulationState == SimulationState.Running;
             }
         }
 
+        #endregion
+
+        #region Methods
+        
         /// <summary>
         /// The GenerateNewMaze method is called to generate a new maze.
         /// The Randomized Prim's algorithm. is used to generate the maze.
@@ -232,7 +231,62 @@ namespace MazeRobotSimulator.Model
                 throw new Exception("Maze.GenerateNewMaze(): " + ex.ToString());
             }
         }
-        
+
+        /// <summary>
+        /// The ResetMaze method is called to reset the maze.
+        /// </summary>
+        public void ResetMaze()
+        {
+            try
+            {
+                if (CanResetMaze)
+                {
+                    // Create and populate the maze.
+                    MazeCells = new ObservableCollection<MazeCell>();
+                    while (MazeCells.Count != Constants.MazeWidth * Constants.MazeHeight)
+                    {
+                        MazeCells.Add(new MazeCell());
+                    }
+
+                    SimulationState = SimulationState.Default;  // Reset the simulation state.
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Maze.ResetMaze(): " + ex.ToString());
+            }
+        }
+
+        /// <summary>
+        /// The StartSimulation method is called to start the simulation.
+        /// </summary>
+        public void StartSimulation()
+        {
+            try
+            {
+                // TBD.
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Maze.StartSimulation(): " + ex.ToString());
+            }
+        }
+
+        /// <summary>
+        /// The StartSimulation method is called to stop the simulation.
+        /// </summary>
+        public void StopSimulation()
+        {
+            try
+            {
+                // TBD.
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Maze.StopSimulation(): " + ex.ToString());
+            }
+        }
+
         /// <summary>
         /// The ChooseRandomCell method is called to choose a random cell in the maze.
         /// This random cell can not be on the edge of the maze, as the maze edges are all walls.
