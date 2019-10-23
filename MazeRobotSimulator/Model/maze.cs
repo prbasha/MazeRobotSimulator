@@ -16,9 +16,9 @@ namespace MazeRobotSimulator.Model
     {
         #region Fields
 
-        private ObservableCollection<MazeCell> _mazeCells;              // The maze (a collection of maze cells).
-        private SimulationState _simulationState = SimulationState.Default;   // The current state of the simulation.
-        private Random _randomNumberGenerator;                          // A random number generator.
+        private ObservableCollection<MazeCell> _mazeCells;                  // The maze (a collection of maze cells).
+        private SimulationState _simulationState = SimulationState.Default; // The current state of the simulation.
+        private Random _randomNumberGenerator;                              // A random number generator.
         // TBD: add robot.
 
         #endregion
@@ -217,9 +217,9 @@ namespace MazeRobotSimulator.Model
 
                     // Set the start/end cells.
                     MazeCell startCell = MazeCells.First(x => x.CellType == CellType.Passage);
-                    startCell.CellType = CellType.Start;
+                    startCell.CellRole = CellRole.Start;
                     MazeCell endCell = MazeCells.Last(x => x.CellType == CellType.Passage);
-                    endCell.CellType = CellType.End;
+                    endCell.CellRole = CellRole.End;
 
                     // TBD: Place the robot at the start cell.
 

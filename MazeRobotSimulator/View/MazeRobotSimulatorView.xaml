@@ -20,10 +20,10 @@
                 <DataTrigger Binding="{Binding CellType}" Value="Passage">
                     <Setter Property="Background" Value="White"></Setter>
                 </DataTrigger>
-                <DataTrigger Binding="{Binding CellType}" Value="Start">
+                <DataTrigger Binding="{Binding CellRole}" Value="Start">
                     <Setter Property="Background" Value="Green"></Setter>
                 </DataTrigger>
-                <DataTrigger Binding="{Binding CellType}" Value="End">
+                <DataTrigger Binding="{Binding CellRole}" Value="End">
                     <Setter Property="Background" Value="Red"></Setter>
                 </DataTrigger>
             </Style.Triggers>

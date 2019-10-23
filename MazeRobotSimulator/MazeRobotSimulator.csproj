@@ -54,10 +54,15 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Model\CellMark.cs" />
+    <Compile Include="Model\CellRole.cs" />
     <Compile Include="Model\CellType.cs" />
     <Compile Include="Model\Constants.cs" />
+    <Compile Include="Model\Direction.cs" />
     <Compile Include="Model\Maze.cs" />
     <Compile Include="Model\MazeCell.cs" />
+    <Compile Include="Model\MazeSegment.cs" />
+    <Compile Include="Model\SegmentType.cs" />
     <Compile Include="Model\SimulationState.cs" />
     <Compile Include="ViewModel\MazeRobotSimulatorViewModel.cs" />
     <Compile Include="View\MazeRobotSimulatorView.xaml.cs">
