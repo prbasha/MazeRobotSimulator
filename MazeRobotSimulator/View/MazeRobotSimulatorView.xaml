@@ -28,6 +28,19 @@
                 </DataTrigger>
             </Style.Triggers>
         </Style>
+        <Style x:Key="cellMarkStyle" TargetType="{x:Type Ellipse}">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding CellMark}" Value="None">
+                    <Setter Property="Fill" Value="Transparent"></Setter>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding CellMark}" Value="Once">
+                    <Setter Property="Fill" Value="Blue"></Setter>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding CellMark}" Value="Twice">
+                    <Setter Property="Fill" Value="Red"></Setter>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -60,7 +73,10 @@
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <Grid x:Name="mazeCell" Style="{StaticResource mazeCellStyle}"></Grid>
+                    <Grid x:Name="mazeCell" Style="{StaticResource mazeCellStyle}">
+                        <Ellipse x:Name="cellMark" Style="{StaticResource cellMarkStyle}"></Ellipse>
+                        <Grid x:Name="robot" Background="Gray" Visibility="{Binding Path=ContainsRobot, Converter={StaticResource booleanToVisibilityConverter}}"></Grid>
+                    </Grid>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows.Threading;
 
 namespace MazeRobotSimulator.Model
 {
@@ -17,9 +18,10 @@ namespace MazeRobotSimulator.Model
         #region Fields
 
         private ObservableCollection<MazeCell> _mazeCells;                  // The maze (a collection of maze cells).
+        private Robot _robot;                                               // The robot.
         private SimulationState _simulationState = SimulationState.Default; // The current state of the simulation.
+        private DispatcherTimer _simulationTimer;                           // The simulation timer.
         private Random _randomNumberGenerator;                              // A random number generator.
-        // TBD: add robot.
 
         #endregion
 
@@ -32,8 +34,14 @@ namespace MazeRobotSimulator.Model
         {
             try
             {
-                _randomNumberGenerator = new Random();  // Initialise random number generator.
+                _randomNumberGenerator = new Random();  // Initialise the random number generator.
+                _robot = new Robot();                   // Initialise the robot.
                 ResetMaze();                            // Reset the maze.
+
+                // Initialise the simulation timer.
+                _simulationTimer = new DispatcherTimer();
+                _simulationTimer.Interval = TimeSpan.FromMilliseconds(Constants.DefaultStepIntervalMilliSeconds);
+                _simulationTimer.Tick += new EventHandler(SimulationTimerEventHandler);
             }
             catch (Exception ex)
             {
@@ -221,7 +229,8 @@ namespace MazeRobotSimulator.Model
                     MazeCell endCell = MazeCells.Last(x => x.CellType == CellType.Passage);
                     endCell.CellRole = CellRole.End;
 
-                    // TBD: Place the robot at the start cell.
+                    // Place the robot at the start cell.
+                    _robot.SetLocation(startCell);
 
                     SimulationState = SimulationState.MazeGenerated;
                 }
@@ -264,7 +273,8 @@ namespace MazeRobotSimulator.Model
         {
             try
             {
-                // TBD.
+                SimulationState = SimulationState.Running;
+                _simulationTimer.Start();
             }
             catch (Exception ex)
             {
@@ -279,7 +289,8 @@ namespace MazeRobotSimulator.Model
         {
             try
             {
-                // TBD.
+                SimulationState = SimulationState.Stopped;
+                _simulationTimer.Stop();
             }
             catch (Exception ex)
             {
@@ -370,7 +381,7 @@ namespace MazeRobotSimulator.Model
                     throw new Exception("cell can not be null.");
                 }
 
-                List<MazeCell> cellNeighbours = RetrieveNeighbours(cell);
+                List<MazeCell> cellNeighbours = RetrieveNeighbours(cell, 2);    // Retrieve the neighbours with offset 2 cells (each cell is surrounded by walls initially).
                 return cellNeighbours.FindAll(x => (x.CellType == CellType.Wall && !IsCellOnTheEdge(x)));
             }
             catch (Exception ex)
@@ -381,7 +392,7 @@ namespace MazeRobotSimulator.Model
 
         /// <summary>
         /// The RetrievePassageNeighbours method is called to retrieve the passage neighbour cells for the provided cell.
-        /// A "passge" cell is a cell that is already part of the maze.
+        /// A "passage" cell is a cell that is already part of the maze.
         /// </summary>
         /// <param name="cell"></param>
         /// <returns></returns>
@@ -394,7 +405,7 @@ namespace MazeRobotSimulator.Model
                     throw new Exception("cell can not be null.");
                 }
 
-                List<MazeCell> cellNeighbours = RetrieveNeighbours(cell);
+                List<MazeCell> cellNeighbours = RetrieveNeighbours(cell, 2);    // Retrieve the neighbours with offset 2 cells (each cell is surrounded by walls initially).
                 return cellNeighbours.FindAll(x => x.CellType == CellType.Passage);
             }
             catch (Exception ex)
@@ -405,11 +416,11 @@ namespace MazeRobotSimulator.Model
 
         /// <summary>
         /// The RetrieveNeighbours method is called to retrieve the neighbour cells for the provided cell.
-        /// The neighbour cells are 2 cells from the provided cell, in all 4 directions. This is because a "wall" cell exists between each cell and its neighbour cell.
+        /// The neighbour cells are "offset" cells from the provided cell, in all 4 directions.
         /// </summary>
         /// <param name="cell"></param>
         /// <returns></returns>
-        private List<MazeCell> RetrieveNeighbours(MazeCell cell)
+        private List<MazeCell> RetrieveNeighbours(MazeCell cell, int offset = 1)
         {
             try
             {
@@ -417,14 +428,19 @@ namespace MazeRobotSimulator.Model
                 {
                     throw new Exception("cell can not be null.");
                 }
+
+                if (offset < 1)
+                {
+                    throw new Exception("offset must be greater than or equal to 1.");
+                }
                 
                 int cellIndex = MazeCells.IndexOf(cell);   // Retrieve the index of the cell.
 
                 // Determine the indexes for the current cell's neighbours.
-                int northNeighbourIndex = cellIndex - 2*Constants.MazeWidth;
-                int eastNeighbourIndex = cellIndex + 2;
-                int southNeighbourIndex = cellIndex + 2*Constants.MazeHeight;
-                int westNeighbourIndex = cellIndex - 2;
+                int northNeighbourIndex = cellIndex - offset * Constants.MazeWidth;
+                int eastNeighbourIndex = cellIndex + offset;
+                int southNeighbourIndex = cellIndex + offset * Constants.MazeHeight;
+                int westNeighbourIndex = cellIndex - offset;
 
                 // Determine if the current cell is on the north/east/south/west edge of the maze - certain neighbours must be ignored if the current cell is on an edge.
                 bool northEdge = cellIndex < Constants.MazeWidth ? true : false;
@@ -510,6 +526,72 @@ namespace MazeRobotSimulator.Model
             catch (Exception ex)
             {
                 throw new Exception("Maze.ConnectCells(MazeCell cellOne, MazeCell cellTwo): " + ex.ToString());
+            }
+        }
+
+        /// <summary>
+        /// The SimulationTimerEventHandler method is called when the simulation timer expires.
+        /// It updates the current state of the simulation.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void SimulationTimerEventHandler(object sender, EventArgs e)
+        {
+            try
+            {
+                if (SimulationState == SimulationState.Running)
+                {
+                    
+                    MazeCell robotLocation = MazeCells.First(x => x.ContainsRobot); // Retrieve the current location of the robot.
+                    int cellIndex = MazeCells.IndexOf(robotLocation);               // Retrieve the index of the cell.
+
+                    // Determine the indexes for the cell's neighbours.
+                    int northNeighbourIndex = cellIndex - Constants.MazeWidth;
+                    int eastNeighbourIndex = cellIndex + 1;
+                    int southNeighbourIndex = cellIndex + Constants.MazeHeight;
+                    int westNeighbourIndex = cellIndex - 1;
+
+                    // Determine if the cell is on the north/east/south/west edge of the maze - certain neighbours must be ignored if the current cell is on an edge.
+                    bool northEdge = cellIndex < Constants.MazeWidth ? true : false;
+                    bool eastEdge = ((cellIndex + 1) % Constants.MazeWidth) == 0 ? true : false;
+                    bool westEdge = (cellIndex % Constants.MazeWidth) == 0 ? true : false;
+                    bool southEdge = (cellIndex + Constants.MazeWidth) >= (Constants.MazeWidth * Constants.MazeHeight) ? true : false;
+
+                    // Retrieve the cell's neighbours.
+                    MazeCell northCell = null;
+                    MazeCell eastCell = null;
+                    MazeCell southCell = null;
+                    MazeCell westCell = null;
+                    // North cell.
+                    if (!northEdge && IsCellIndexValid(northNeighbourIndex))
+                    {
+                        northCell = MazeCells[northNeighbourIndex];
+                    }
+                    // East cell.
+                    if (!eastEdge && IsCellIndexValid(eastNeighbourIndex))
+                    {
+                        eastCell = MazeCells[eastNeighbourIndex];
+                    }
+                    // South cell.
+                    if (!southEdge && IsCellIndexValid(southNeighbourIndex))
+                    {
+                        southCell = MazeCells[southNeighbourIndex];
+                    }
+                    // West cell.
+                    if (!westEdge && IsCellIndexValid(westNeighbourIndex))
+                    {
+                        westCell = MazeCells[westNeighbourIndex];
+                    }
+
+                    // Create a segment at the robot's current location.
+                    MazeSegment mazeSegment = new MazeSegment(robotLocation, northCell, eastCell, southCell, westCell);
+
+                    _robot.Move(mazeSegment);   // Move the robot.
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Maze.SimulationTimerEventHandler(object sender, EventArgs e): " + ex.ToString());
             }
         }
 

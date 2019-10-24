@@ -62,6 +62,7 @@
     <Compile Include="Model\Maze.cs" />
     <Compile Include="Model\MazeCell.cs" />
     <Compile Include="Model\MazeSegment.cs" />
+    <Compile Include="Model\Robot.cs" />
     <Compile Include="Model\SegmentType.cs" />
     <Compile Include="Model\SimulationState.cs" />
     <Compile Include="ViewModel\MazeRobotSimulatorViewModel.cs" />

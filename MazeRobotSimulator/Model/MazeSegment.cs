@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MazeRobotSimulator.Model
 {
@@ -9,6 +11,10 @@ namespace MazeRobotSimulator.Model
     public class MazeSegment
     {
         #region Fields
+
+        private List<Direction> _cellsNotVisited;
+        private List<Direction> _cellsVisitedOnce;
+
         #endregion
 
         #region Constructors
@@ -21,12 +27,55 @@ namespace MazeRobotSimulator.Model
         {
             try
             {
-                // Assign the cells.
-                CenterCell = centerCell ?? throw new Exception("Center cell can not be null.");
-                NorthCell = northCell ?? throw new Exception("North cell can not be null.");
-                EastCell = eastCell ?? throw new Exception("East cell can not be null.");
-                SouthCell = southCell ?? throw new Exception("South cell can not be null.");
-                WestCell = westCell ?? throw new Exception("West cell can not be null.");
+                CenterCell = centerCell ?? throw new Exception("Center cell can not be null."); // Assign the center cell.
+
+                // Assign the neighbour cells.
+                if (northCell == null && eastCell == null && southCell == null && westCell == null)
+                {
+                    throw new Exception("All four neighbour cells can not be null.");
+                }
+                NorthCell = northCell == null ? new MazeCell() { CellType = CellType.Wall } : northCell;
+                EastCell = eastCell == null ? new MazeCell() { CellType = CellType.Wall } : eastCell;
+                SouthCell = southCell == null ? new MazeCell() { CellType = CellType.Wall } : southCell;
+                WestCell = westCell == null ? new MazeCell() { CellType = CellType.Wall } : westCell;
+
+                // Build the list of cells not visited.
+                _cellsNotVisited = new List<Direction>();
+                if (NorthCell.CellType == CellType.Passage && NorthCell.CellMark == CellMark.None)
+                {
+                    _cellsNotVisited.Add(Direction.North);
+                }
+                if (EastCell.CellType == CellType.Passage && EastCell.CellMark == CellMark.None)
+                {
+                    _cellsNotVisited.Add(Direction.East);
+                }
+                if (SouthCell.CellType == CellType.Passage && SouthCell.CellMark == CellMark.None)
+                {
+                    _cellsNotVisited.Add(Direction.South);
+                }
+                if (WestCell.CellType == CellType.Passage && WestCell.CellMark == CellMark.None)
+                {
+                    _cellsNotVisited.Add(Direction.West);
+                }
+
+                // Build the list of cells visited once.
+                _cellsVisitedOnce = new List<Direction>();
+                if (NorthCell.CellType == CellType.Passage && NorthCell.CellMark == CellMark.Once)
+                {
+                    _cellsVisitedOnce.Add(Direction.North);
+                }
+                if (EastCell.CellType == CellType.Passage && EastCell.CellMark == CellMark.Once)
+                {
+                    _cellsVisitedOnce.Add(Direction.East);
+                }
+                if (SouthCell.CellType == CellType.Passage && SouthCell.CellMark == CellMark.Once)
+                {
+                    _cellsVisitedOnce.Add(Direction.South);
+                }
+                if (WestCell.CellType == CellType.Passage && WestCell.CellMark == CellMark.Once)
+                {
+                    _cellsVisitedOnce.Add(Direction.West);
+                }
 
                 SegmentType = DetermineSegmentType();   // Determine the segment type.
             }
@@ -137,7 +186,7 @@ namespace MazeRobotSimulator.Model
                     return currentDirection;
                 }
 
-                // Deadend - turn around.
+                // Deadend - Choose the only available passage.
                 if (SegmentType == SegmentType.DeadEnd)
                 {
                     if (NorthCell.CellType == CellType.Passage)
@@ -158,19 +207,59 @@ namespace MazeRobotSimulator.Model
                     }
                 }
 
-                // TBD: Junction - choose a new direction.
+                // Junction - choose a new direction.
                 Random randomNumberGenerator = new Random();
                 Direction newDirection = Direction.North;
-                // If any cells are marked none, choose one at random.
-                // If some cells are marked once, and others are marked twice, choose a "marked once" cell at random.
-                // If all cells are marked once, turn around.
-
-
+                if (_cellsNotVisited.Count > 0)
+                {
+                    // If any cells are marked none, choose one at random.
+                    newDirection = _cellsNotVisited.ElementAt(randomNumberGenerator.Next(_cellsNotVisited.Count));
+                }
+                else if (_cellsVisitedOnce.Count  > 0 && _cellsVisitedOnce.Count != 4)
+                {
+                    // If some (not all) cells are marked once, and others cells are marked twice, choose a "marked once" cell at random.
+                    newDirection = _cellsVisitedOnce.ElementAt(randomNumberGenerator.Next(_cellsVisitedOnce.Count));
+                }
+                else if (_cellsVisitedOnce.Count == 4)
+                {
+                    // If all cells are marked once, turn around.
+                    newDirection = SwitchDirection(currentDirection);
+                }
+                
                 return newDirection;
             }
             catch (Exception ex)
             {
                 throw new Exception("MazeSegment.ChooseDirection(): " + ex.ToString());
+            }
+        }
+
+        /// <summary>
+        /// The SwitchDirection method is called to switch the provided direction.
+        /// </summary>
+        /// <param name="direction"></param>
+        /// <returns></returns>
+        private Direction SwitchDirection(Direction direction)
+        {
+            try
+            {
+                switch (direction)
+                {
+                    case Direction.North:
+                        return Direction.South;
+                    case Direction.East:
+                        return Direction.West;
+                    case Direction.South:
+                        return Direction.North;
+                    case Direction.West:
+                        return Direction.East;
+                    default:
+                        throw new Exception("Unable to switch the provided direction.");
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("TurnAround(Direction direction): " + ex.ToString());
             }
         }
 

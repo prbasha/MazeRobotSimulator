@@ -7,9 +7,9 @@
     {
         public const int MazeWidth = 49;
         public const int MazeHeight = 49;
-        public const int MinimumStepIntervalMilliSeconds = 100;
+        public const int MinimumStepIntervalMilliSeconds = 50;
         public const int DefaultStepIntervalMilliSeconds = 1000;
-        public const int MaximumStepIntervalMilliSeconds = 3000;
+        public const int MaximumStepIntervalMilliSeconds = 1000;
         public const int MazeGenerationDelayMilliSeconds = 1;
     }
 }
