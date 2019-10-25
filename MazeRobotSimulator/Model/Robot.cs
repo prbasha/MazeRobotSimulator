@@ -31,6 +31,9 @@ namespace MazeRobotSimulator.Model
         #endregion
 
         #region Events
+
+        public static event ReachedTheEnd OnReachedTheEnd;
+
         #endregion
 
         #region Properties
@@ -121,13 +124,6 @@ namespace MazeRobotSimulator.Model
                     return;
                 }
                 
-                if (CurrentLocation.CellRole == CellRole.End)
-                {
-                    // The robot has reached the end of the maze - do nothing.
-                    // TBD: Raise an event at the bottom of this method.
-                    return;
-                }
-                
                 // If the robot is NOT at a junction, mark the location.
                 if (mazeSegment.SegmentType != SegmentType.Junction)
                 {
@@ -160,6 +156,11 @@ namespace MazeRobotSimulator.Model
                 CurrentLocation.ContainsRobot = false;
                 CurrentLocation = newCurrentLocation != null ? newCurrentLocation : CurrentLocation;
                 CurrentLocation.ContainsRobot = true;
+
+                if (CurrentLocation.CellRole == CellRole.End)
+                {
+                    OnReachedTheEnd?.Invoke();  // The robot has reached the end of the maze.
+                }
             }
             catch (Exception ex)
             {

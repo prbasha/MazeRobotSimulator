@@ -17,11 +17,14 @@ namespace MazeRobotSimulator.Model
     {
         #region Fields
 
-        private ObservableCollection<MazeCell> _mazeCells;                  // The maze (a collection of maze cells).
-        private Robot _robot;                                               // The robot.
-        private SimulationState _simulationState = SimulationState.Default; // The current state of the simulation.
-        private DispatcherTimer _simulationTimer;                           // The simulation timer.
-        private Random _randomNumberGenerator;                              // A random number generator.
+        private int _mazeWidthHeightCells = Constants.DefaultMazeWidthHeightCells;  // The width/height of the maze (in cells)
+        private ObservableCollection<MazeCell> _mazeCells;                          // The maze (a collection of maze cells).
+        private Robot _robot;                                                       // The robot.
+        private SimulationState _simulationState = SimulationState.Default;         // The current state of the simulation.
+        private int _simulationSpeed = Constants.DefaultSimulationSpeed;            // The simulation speed.
+        private DispatcherTimer _simulationTimer;                                   // The simulation timer.
+        private TimeSpan _simulationTime;                                           // The simulation time.
+        private Random _randomNumberGenerator;                                      // A random number generator.
 
         #endregion
 
@@ -34,14 +37,19 @@ namespace MazeRobotSimulator.Model
         {
             try
             {
+                ProposedMazeWidthHeightCells = Constants.DefaultMazeWidthHeightCells;   // Set the initial maze size.
+
                 _randomNumberGenerator = new Random();  // Initialise the random number generator.
                 _robot = new Robot();                   // Initialise the robot.
                 ResetMaze();                            // Reset the maze.
-
+                
                 // Initialise the simulation timer.
                 _simulationTimer = new DispatcherTimer();
                 _simulationTimer.Interval = TimeSpan.FromMilliseconds(Constants.DefaultStepIntervalMilliSeconds);
                 _simulationTimer.Tick += new EventHandler(SimulationTimerEventHandler);
+
+                // Listen for events from the robot.
+                Robot.OnReachedTheEnd += new ReachedTheEnd(StopSimulation);
             }
             catch (Exception ex)
             {
@@ -57,27 +65,24 @@ namespace MazeRobotSimulator.Model
         #region Properties
 
         /// <summary>
-        /// Gets the width of the maze (in cells).
+        /// Gets the width/height of the maze (in cells).
         /// </summary>
-        public int MazeWidthCells
+        public int MazeWidthHeightCells
         {
             get
             {
-                return Constants.MazeWidth;
+                return _mazeWidthHeightCells;
             }
-        }
-
-        /// <summary>
-        /// Gets the height of the maze (in cells).
-        /// </summary>
-        public int MazeHeightCells
-        {
-            get
+            private set
             {
-                return Constants.MazeHeight;
+                if (value >= Constants.MinimumMazeWidthHeightCells && value <= Constants.MaximumMazeWidthHeightCells)
+                {
+                    _mazeWidthHeightCells = value;
+                    RaisePropertyChanged("MazeWidthHeightCells");
+                }
             }
         }
-
+        
         /// <summary>
         /// Gets the collection of maze cells.
         /// </summary>
@@ -88,7 +93,7 @@ namespace MazeRobotSimulator.Model
                 if (_mazeCells == null)
                 {
                     _mazeCells = new ObservableCollection<MazeCell>();
-                    while (_mazeCells.Count != Constants.MazeWidth * Constants.MazeHeight)
+                    while (_mazeCells.Count != MazeWidthHeightCells * MazeWidthHeightCells)
                     {
                         _mazeCells.Add(new MazeCell());
                     }
@@ -141,7 +146,7 @@ namespace MazeRobotSimulator.Model
         {
             get
             {
-                return SimulationState == SimulationState.MazeGenerated || SimulationState == SimulationState.Stopped;
+                return SimulationState == SimulationState.Default || SimulationState == SimulationState.MazeGenerated || SimulationState == SimulationState.Stopped;
             }
         }
 
@@ -167,13 +172,56 @@ namespace MazeRobotSimulator.Model
             }
         }
 
+        /// <summary>
+        /// Gets or sets the proposed width/height of the maze to be generated (in cells).
+        /// </summary>
+        public int ProposedMazeWidthHeightCells { get; set; }
+
+        /// <summary>
+        /// Gets the proposed width/height of the maze to be generated (in cells).
+        /// </summary>
+        public int SimulationSpeed
+        {
+            get
+            {
+                return _simulationSpeed;
+            }
+            set
+            {
+                if (value >= Constants.MinimumSimulationSpeed && value <= Constants.MaximumSimulationSpeed)
+                {
+                    _simulationSpeed = value;
+                    RaisePropertyChanged("SimulationSpeed");
+
+                    // Update the simulation timer.
+                    _simulationTimer.Interval = TimeSpan.FromMilliseconds(Constants.DefaultStepIntervalMilliSeconds / _simulationSpeed);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the simulation time.
+        /// </summary>
+        public TimeSpan SimulationTime
+        {
+            get
+            {
+                return _simulationTime;
+            }
+            private set
+            {
+                _simulationTime = value;
+                RaisePropertyChanged("SimulationTime");
+            }
+        }
+
         #endregion
 
         #region Methods
-        
+
         /// <summary>
         /// The GenerateNewMaze method is called to generate a new maze.
-        /// The Randomized Prim's algorithm. is used to generate the maze.
+        /// The Randomized Prim's algorithm is used to generate the maze.
         /// https://en.wikipedia.org/wiki/Maze_generation_algorithm#Randomized_Prim's_algorithm
         /// </summary>
         /// <returns></returns>
@@ -183,9 +231,10 @@ namespace MazeRobotSimulator.Model
             {
                 if (CanGenerateMaze)
                 {
-                    SimulationState = SimulationState.MazeGenerating;
-                    
                     ResetMaze();    // Clear the maze.
+
+                    SimulationState = SimulationState.MazeGenerating;   // Update simulation state.
+
                     List<MazeCell> frontierCells = new List<MazeCell>();   // Create a collection of maze walls.
                     
                     // Select a random cell to start.
@@ -232,7 +281,7 @@ namespace MazeRobotSimulator.Model
                     // Place the robot at the start cell.
                     _robot.SetLocation(startCell);
 
-                    SimulationState = SimulationState.MazeGenerated;
+                    SimulationState = SimulationState.MazeGenerated;    // Update simulation state.
                 }
             }
             catch (Exception ex)
@@ -250,13 +299,16 @@ namespace MazeRobotSimulator.Model
             {
                 if (CanResetMaze)
                 {
+                    MazeWidthHeightCells = ProposedMazeWidthHeightCells;    // Set the maze size.
+
                     // Create and populate the maze.
                     MazeCells = new ObservableCollection<MazeCell>();
-                    while (MazeCells.Count != Constants.MazeWidth * Constants.MazeHeight)
+                    while (MazeCells.Count != MazeWidthHeightCells * MazeWidthHeightCells)
                     {
                         MazeCells.Add(new MazeCell());
                     }
 
+                    SimulationTime = TimeSpan.FromSeconds(0);   // Reset the simulation time.
                     SimulationState = SimulationState.Default;  // Reset the simulation state.
                 }
             }
@@ -308,9 +360,9 @@ namespace MazeRobotSimulator.Model
             try
             {
                 // X and Y indexes must not be on the edges.
-                int cellIndexX = _randomNumberGenerator.Next(1, Constants.MazeWidth-1);
-                int cellIndexY = _randomNumberGenerator.Next(1, Constants.MazeHeight-1);
-
+                int cellIndexX = _randomNumberGenerator.Next(2, MazeWidthHeightCells-2);
+                int cellIndexY = _randomNumberGenerator.Next(2, MazeWidthHeightCells-2);
+                
                 if (IsCellIndexValid(cellIndexX * cellIndexY))
                 {
                     return MazeCells.ElementAt(cellIndexX * cellIndexY);
@@ -353,10 +405,10 @@ namespace MazeRobotSimulator.Model
                 int cellIndex = MazeCells.IndexOf(cell);   // Retrieve the index of the cell.
                 
                 // Determine if the current cell is on the north/east/south/west edge of the maze.
-                bool northEdge = cellIndex < Constants.MazeWidth ? true : false;
-                bool eastEdge = ((cellIndex + 1) % Constants.MazeWidth) == 0 ? true : false;
-                bool westEdge = (cellIndex % Constants.MazeWidth) == 0 ? true : false;
-                bool southEdge = (cellIndex + Constants.MazeWidth) >= (Constants.MazeWidth * Constants.MazeHeight) ? true : false;
+                bool northEdge = cellIndex < MazeWidthHeightCells ? true : false;
+                bool eastEdge = ((cellIndex + 1) % MazeWidthHeightCells) == 0 ? true : false;
+                bool westEdge = (cellIndex % MazeWidthHeightCells) == 0 ? true : false;
+                bool southEdge = (cellIndex + MazeWidthHeightCells) >= (MazeWidthHeightCells * MazeWidthHeightCells) ? true : false;
 
                 return northEdge || eastEdge || westEdge || southEdge;
             }
@@ -437,16 +489,16 @@ namespace MazeRobotSimulator.Model
                 int cellIndex = MazeCells.IndexOf(cell);   // Retrieve the index of the cell.
 
                 // Determine the indexes for the current cell's neighbours.
-                int northNeighbourIndex = cellIndex - offset * Constants.MazeWidth;
+                int northNeighbourIndex = cellIndex - offset * MazeWidthHeightCells;
                 int eastNeighbourIndex = cellIndex + offset;
-                int southNeighbourIndex = cellIndex + offset * Constants.MazeHeight;
+                int southNeighbourIndex = cellIndex + offset * MazeWidthHeightCells;
                 int westNeighbourIndex = cellIndex - offset;
 
                 // Determine if the current cell is on the north/east/south/west edge of the maze - certain neighbours must be ignored if the current cell is on an edge.
-                bool northEdge = cellIndex < Constants.MazeWidth ? true : false;
-                bool eastEdge = ((cellIndex + 1) % Constants.MazeWidth) == 0 ? true : false;
-                bool westEdge = (cellIndex % Constants.MazeWidth) == 0 ? true : false;
-                bool southEdge = (cellIndex + Constants.MazeWidth) >= (Constants.MazeWidth * Constants.MazeHeight) ? true : false;
+                bool northEdge = cellIndex < MazeWidthHeightCells ? true : false;
+                bool eastEdge = ((cellIndex + 1) % MazeWidthHeightCells) == 0 ? true : false;
+                bool westEdge = (cellIndex % MazeWidthHeightCells) == 0 ? true : false;
+                bool southEdge = (cellIndex + MazeWidthHeightCells) >= (MazeWidthHeightCells * MazeWidthHeightCells) ? true : false;
 
                 // Retrieve the current cell's neighbours.
                 List<MazeCell> cellNeightbours = new List<MazeCell>();
@@ -541,21 +593,20 @@ namespace MazeRobotSimulator.Model
             {
                 if (SimulationState == SimulationState.Running)
                 {
-                    
                     MazeCell robotLocation = MazeCells.First(x => x.ContainsRobot); // Retrieve the current location of the robot.
                     int cellIndex = MazeCells.IndexOf(robotLocation);               // Retrieve the index of the cell.
 
                     // Determine the indexes for the cell's neighbours.
-                    int northNeighbourIndex = cellIndex - Constants.MazeWidth;
+                    int northNeighbourIndex = cellIndex - MazeWidthHeightCells;
                     int eastNeighbourIndex = cellIndex + 1;
-                    int southNeighbourIndex = cellIndex + Constants.MazeHeight;
+                    int southNeighbourIndex = cellIndex + MazeWidthHeightCells;
                     int westNeighbourIndex = cellIndex - 1;
 
                     // Determine if the cell is on the north/east/south/west edge of the maze - certain neighbours must be ignored if the current cell is on an edge.
-                    bool northEdge = cellIndex < Constants.MazeWidth ? true : false;
-                    bool eastEdge = ((cellIndex + 1) % Constants.MazeWidth) == 0 ? true : false;
-                    bool westEdge = (cellIndex % Constants.MazeWidth) == 0 ? true : false;
-                    bool southEdge = (cellIndex + Constants.MazeWidth) >= (Constants.MazeWidth * Constants.MazeHeight) ? true : false;
+                    bool northEdge = cellIndex < MazeWidthHeightCells ? true : false;
+                    bool eastEdge = ((cellIndex + 1) % MazeWidthHeightCells) == 0 ? true : false;
+                    bool westEdge = (cellIndex % MazeWidthHeightCells) == 0 ? true : false;
+                    bool southEdge = (cellIndex + MazeWidthHeightCells) >= (MazeWidthHeightCells * MazeWidthHeightCells) ? true : false;
 
                     // Retrieve the cell's neighbours.
                     MazeCell northCell = null;
@@ -587,6 +638,8 @@ namespace MazeRobotSimulator.Model
                     MazeSegment mazeSegment = new MazeSegment(robotLocation, northCell, eastCell, southCell, westCell);
 
                     _robot.Move(mazeSegment);   // Move the robot.
+
+                    SimulationTime = SimulationTime.Add(TimeSpan.FromMilliseconds(Constants.DefaultStepIntervalMilliSeconds));
                 }
             }
             catch (Exception ex)

@@ -3,13 +3,14 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:wpfExtToolKit="http://schemas.xceed.com/wpf/xaml/toolkit"
         xmlns:local="clr-namespace:MazeRobotSimulator.View"
         mc:Ignorable="d"
         Title="Maze Robot Simulator" 
-        MinHeight="540" 
-        MinWidth="960"
-        Height="540" 
-        Width="960">
+        MinHeight="768" 
+        MinWidth="1024"
+        Height="768" 
+        Width="1024">
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="booleanToVisibilityConverter"></BooleanToVisibilityConverter>
         <Style x:Key="mazeCellStyle" TargetType="{x:Type Grid}">
@@ -44,8 +45,8 @@
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="0.05*"></RowDefinition>
-            <RowDefinition Height="0.95*"></RowDefinition>
+            <RowDefinition Height="0.10*"></RowDefinition>
+            <RowDefinition Height="0.90*"></RowDefinition>
         </Grid.RowDefinitions>
         <Grid Grid.Row="0">
             <Grid.ColumnDefinitions>
@@ -54,10 +55,42 @@
                 <ColumnDefinition></ColumnDefinition>
                 <ColumnDefinition></ColumnDefinition>
             </Grid.ColumnDefinitions>
-            <Button Grid.Column="0" Margin="1,1,1,1" Background="Pink" Content="GENERATE MAZE" Command="{Binding GenerateMazeCommand}"></Button>
-            <Button Grid.Column="1" Margin="1,1,1,1" Background="Orange" Content="RESET MAZE" Command="{Binding ResetMazeCommand}"></Button>
-            <Button Grid.Column="2" Margin="1,1,1,1" Background="LimeGreen" Content="START" Command="{Binding StartSimulationCommand}"></Button>
-            <Button Grid.Column="3" Margin="1,1,1,1" Background="OrangeRed" Content="STOP" Command="{Binding StopSimulationCommand}"></Button>
+            <Grid.RowDefinitions>
+                <RowDefinition></RowDefinition>
+                <RowDefinition></RowDefinition>
+            </Grid.RowDefinitions>
+            <Grid Grid.Column="0" Grid.Row="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="0.60*"></ColumnDefinition>
+                    <ColumnDefinition Width="0.40*"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <Viewbox Grid.Column="0" Stretch="Uniform">
+                    <Label HorizontalAlignment="Right" VerticalAlignment="Center">WIDTH/HEIGHT (CELLS):</Label>    
+                </Viewbox>
+                <Viewbox Grid.Column="1" Stretch="Uniform" HorizontalAlignment="Left">
+                    <wpfExtToolKit:IntegerUpDown Margin="2,2,2,2" VerticalAlignment="Center" FontSize="18" Minimum="20" Maximum="50" DefaultValue="30" Value="{Binding Maze.ProposedMazeWidthHeightCells, Mode=TwoWay}"></wpfExtToolKit:IntegerUpDown>
+                </Viewbox>
+            </Grid>
+            <Button Grid.Column="1" Grid.Row="0" Margin="2,2,2,2" Background="Pink" Content="GENERATE MAZE" Command="{Binding GenerateMazeCommand}"></Button>
+            <Button Grid.Column="2" Grid.Row="0" Margin="2,2,2,2" Background="Orange" Content="RESET MAZE" Command="{Binding ResetMazeCommand}"></Button>
+            <Button Grid.Column="0" Grid.Row="1" Margin="2,2,2,2" Background="LimeGreen" Content="START" Command="{Binding StartSimulationCommand}"></Button>
+            <GroupBox Grid.Column="1" Grid.Row="1" FontSize="11" Margin="0,-3,0,0" Header="Speed">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="0.80*"></ColumnDefinition>
+                        <ColumnDefinition Width="0.20*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <Slider Grid.Column="0" VerticalAlignment="Center" Minimum="1" Maximum="20" TickFrequency="1" TickPlacement="None" IsSnapToTickEnabled="True" Value="{Binding Maze.SimulationSpeed, Mode=TwoWay}"></Slider>
+                    <Viewbox Grid.Column="1" Stretch="Uniform">
+                        <Label Margin="0,0,0,0" Padding="0,0,0,0" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14" Content="{Binding Maze.SimulationSpeed, Mode=OneWay}"></Label>
+                    </Viewbox>
+                    
+                </Grid>
+            </GroupBox>
+            <Button Grid.Column="2" Grid.Row="1" Margin="2,2,2,2" Background="OrangeRed" Content="STOP" Command="{Binding StopSimulationCommand}"></Button>
+            <Viewbox Grid.Column="3" Grid.Row="0" Grid.RowSpan="2">
+                <TextBlock Text="{Binding Maze.SimulationTime, StringFormat={}{0:hh}:{0:mm}:{0:ss}}"></TextBlock>
+            </Viewbox>
         </Grid>
         <ItemsControl Grid.Row="1" 
                       Name="mazeGrid" 
@@ -68,14 +101,14 @@
                       ItemsSource="{Binding Maze.MazeCells, Mode=OneWay}">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
-                    <UniformGrid Columns="{Binding Maze.MazeWidthCells, Mode=OneWay}" Rows="{Binding Maze.MazeHeightCells, Mode=OneWay}"></UniformGrid>
+                    <UniformGrid Columns="{Binding Maze.MazeWidthHeightCells, Mode=OneWay}" Rows="{Binding Maze.MazeWidthHeightCells, Mode=OneWay}"></UniformGrid>
                 </ItemsPanelTemplate>
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
                     <Grid x:Name="mazeCell" Style="{StaticResource mazeCellStyle}">
                         <Ellipse x:Name="cellMark" Style="{StaticResource cellMarkStyle}"></Ellipse>
-                        <Grid x:Name="robot" Background="Gray" Visibility="{Binding Path=ContainsRobot, Converter={StaticResource booleanToVisibilityConverter}}"></Grid>
+                        <Grid x:Name="robot" Background="Purple" Visibility="{Binding Path=ContainsRobot, Converter={StaticResource booleanToVisibilityConverter}}"></Grid>
                     </Grid>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>

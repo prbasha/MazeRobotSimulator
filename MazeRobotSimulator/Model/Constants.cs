@@ -5,11 +5,13 @@
     /// </summary>
     public static class Constants
     {
-        public const int MazeWidth = 49;
-        public const int MazeHeight = 49;
-        public const int MinimumStepIntervalMilliSeconds = 50;
+        public const int MinimumMazeWidthHeightCells = 20;
+        public const int MaximumMazeWidthHeightCells = 50;
+        public const int DefaultMazeWidthHeightCells = 30;
+        public const int MinimumSimulationSpeed = 1;
+        public const int MaximumSimulationSpeed = 20;
+        public const int DefaultSimulationSpeed = 1;
         public const int DefaultStepIntervalMilliSeconds = 1000;
-        public const int MaximumStepIntervalMilliSeconds = 1000;
         public const int MazeGenerationDelayMilliSeconds = 1;
     }
 }
