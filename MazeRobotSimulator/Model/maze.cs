@@ -38,10 +38,8 @@ namespace MazeRobotSimulator.Model
             try
             {
                 ProposedMazeWidthHeightCells = Constants.DefaultMazeWidthHeightCells;   // Set the initial maze size.
-
                 _randomNumberGenerator = new Random();  // Initialise the random number generator.
                 _robot = new Robot();                   // Initialise the robot.
-                ResetMaze();                            // Reset the maze.
                 
                 // Initialise the simulation timer.
                 _simulationTimer = new DispatcherTimer();
@@ -50,6 +48,8 @@ namespace MazeRobotSimulator.Model
 
                 // Listen for events from the robot.
                 Robot.OnReachedTheEnd += new ReachedTheEnd(StopSimulation);
+
+                ResetMaze();    // Reset the maze.
             }
             catch (Exception ex)
             {
@@ -178,7 +178,7 @@ namespace MazeRobotSimulator.Model
         public int ProposedMazeWidthHeightCells { get; set; }
 
         /// <summary>
-        /// Gets the proposed width/height of the maze to be generated (in cells).
+        /// Gets the or sets the simulation speed.
         /// </summary>
         public int SimulationSpeed
         {
@@ -233,7 +233,7 @@ namespace MazeRobotSimulator.Model
                 {
                     ResetMaze();    // Clear the maze.
 
-                    SimulationState = SimulationState.MazeGenerating;   // Update simulation state.
+                    SimulationState = SimulationState.MazeGenerating;   // Update the simulation state.
 
                     List<MazeCell> frontierCells = new List<MazeCell>();   // Create a collection of maze walls.
                     
@@ -281,7 +281,7 @@ namespace MazeRobotSimulator.Model
                     // Place the robot at the start cell.
                     _robot.SetLocation(startCell);
 
-                    SimulationState = SimulationState.MazeGenerated;    // Update simulation state.
+                    SimulationState = SimulationState.MazeGenerated;    // Update the simulation state.
                 }
             }
             catch (Exception ex)
@@ -359,7 +359,7 @@ namespace MazeRobotSimulator.Model
         {
             try
             {
-                // X and Y indexes must not be on the edges.
+                // X and Y indexes must not be on the edges - a offset of 2 is used to ensure this.
                 int cellIndexX = _randomNumberGenerator.Next(2, MazeWidthHeightCells-2);
                 int cellIndexY = _randomNumberGenerator.Next(2, MazeWidthHeightCells-2);
                 
@@ -634,7 +634,7 @@ namespace MazeRobotSimulator.Model
                         westCell = MazeCells[westNeighbourIndex];
                     }
 
-                    // Create a segment at the robot's current location.
+                    // Create a maze segment at the robot's current location.
                     MazeSegment mazeSegment = new MazeSegment(robotLocation, northCell, eastCell, southCell, westCell);
 
                     _robot.Move(mazeSegment);   // Move the robot.
