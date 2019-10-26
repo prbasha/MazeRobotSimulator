@@ -10,3 +10,5 @@ https://en.wikipedia.org/wiki/Maze_solving_algorithm#Tr%C3%A9maux's_algorithm
 
 The user can control the size of the maze and the speed of the simulation.
 
+![alt text](https://github.com/prbasha/MazeRobotSimulator/blob/master/MazeRobotSimulator/Documentation/screen_shot.PNG)
+
