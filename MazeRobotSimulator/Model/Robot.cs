@@ -130,6 +130,12 @@ namespace MazeRobotSimulator.Model
                     CurrentLocation.MarkCell();
                 }
 
+                // If the robot is at a dead-end (except for the start of the maze), mark the location a second time.
+                if (mazeSegment.SegmentType == SegmentType.DeadEnd && CurrentLocation.CellRole != CellRole.Start)
+                {
+                    CurrentLocation.MarkCell();
+                }
+
                 // Turn the robot, based on the type of maze segment.
                 CurrentDirection = mazeSegment.ChooseDirection(CurrentDirection);
 

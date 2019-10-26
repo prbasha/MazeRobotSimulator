@@ -71,9 +71,33 @@
                     <wpfExtToolKit:IntegerUpDown Margin="2,2,2,2" VerticalAlignment="Center" FontSize="18" Minimum="20" Maximum="50" DefaultValue="30" Value="{Binding Maze.ProposedMazeWidthHeightCells, Mode=TwoWay}"></wpfExtToolKit:IntegerUpDown>
                 </Viewbox>
             </Grid>
-            <Button Grid.Column="1" Grid.Row="0" Margin="2,2,2,2" Background="Pink" Content="GENERATE MAZE" Command="{Binding GenerateMazeCommand}"></Button>
-            <Button Grid.Column="2" Grid.Row="0" Margin="2,2,2,2" Background="Orange" Content="RESET MAZE" Command="{Binding ResetMazeCommand}"></Button>
-            <Button Grid.Column="0" Grid.Row="1" Margin="2,2,2,2" Background="LimeGreen" Content="START" Command="{Binding StartSimulationCommand}"></Button>
+            <Button Grid.Column="1" Grid.Row="0" Margin="2,2,2,2" Background="Pink" Command="{Binding GenerateMazeCommand}">
+                <Button.ContentTemplate>
+                    <DataTemplate>
+                        <Viewbox>
+                            <TextBlock>GENERATE MAZE</TextBlock>
+                        </Viewbox>
+                    </DataTemplate>
+                </Button.ContentTemplate>
+            </Button>
+            <Button Grid.Column="2" Grid.Row="0" Margin="2,2,2,2" Background="Orange" Command="{Binding ResetMazeCommand}">
+                <Button.ContentTemplate>
+                    <DataTemplate>
+                        <Viewbox>
+                            <TextBlock>RESET MAZE</TextBlock>
+                        </Viewbox>
+                    </DataTemplate>
+                </Button.ContentTemplate>
+            </Button>
+            <Button Grid.Column="0" Grid.Row="1" Margin="2,2,2,2" Background="LimeGreen" Command="{Binding StartSimulationCommand}">
+                <Button.ContentTemplate>
+                    <DataTemplate>
+                        <Viewbox>
+                            <TextBlock>START</TextBlock>
+                        </Viewbox>
+                    </DataTemplate>
+                </Button.ContentTemplate>
+            </Button>
             <GroupBox Grid.Column="1" Grid.Row="1" FontSize="11" Margin="0,-3,0,0" Header="Speed">
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -84,10 +108,17 @@
                     <Viewbox Grid.Column="1" Stretch="Uniform">
                         <Label Margin="0,0,0,0" Padding="0,0,0,0" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14" Content="{Binding Maze.SimulationSpeed, Mode=OneWay}"></Label>
                     </Viewbox>
-                    
                 </Grid>
             </GroupBox>
-            <Button Grid.Column="2" Grid.Row="1" Margin="2,2,2,2" Background="OrangeRed" Content="STOP" Command="{Binding StopSimulationCommand}"></Button>
+            <Button Grid.Column="2" Grid.Row="1" Margin="2,2,2,2" Background="OrangeRed" Command="{Binding StopSimulationCommand}">
+                <Button.ContentTemplate>
+                    <DataTemplate>
+                        <Viewbox>
+                            <TextBlock>STOP</TextBlock>
+                        </Viewbox>
+                    </DataTemplate>
+                </Button.ContentTemplate>
+            </Button>
             <Viewbox Grid.Column="3" Grid.Row="0" Grid.RowSpan="2">
                 <TextBlock Text="{Binding Maze.SimulationTime, StringFormat={}{0:hh}:{0:mm}:{0:ss}}"></TextBlock>
             </Viewbox>
