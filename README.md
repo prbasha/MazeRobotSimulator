@@ -7,3 +7,6 @@ https://en.wikipedia.org/wiki/Maze_generation_algorithm#Randomized_Prim's_algori
 
 A robot navigates the maze using Trémaux's algorithm.
 https://en.wikipedia.org/wiki/Maze_solving_algorithm#Tr%C3%A9maux's_algorithm
+
+The user can control the size of the maze and the speed of the simulation.
+
