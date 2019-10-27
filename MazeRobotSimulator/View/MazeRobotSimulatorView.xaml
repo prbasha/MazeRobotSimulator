@@ -68,7 +68,7 @@
                     <Label HorizontalAlignment="Right" VerticalAlignment="Center">WIDTH/HEIGHT (CELLS):</Label>    
                 </Viewbox>
                 <Viewbox Grid.Column="1" Stretch="Uniform" HorizontalAlignment="Left">
-                    <wpfExtToolKit:IntegerUpDown Margin="2,2,2,2" VerticalAlignment="Center" FontSize="18" Minimum="20" Maximum="50" DefaultValue="30" Value="{Binding Maze.ProposedMazeWidthHeightCells, Mode=TwoWay}"></wpfExtToolKit:IntegerUpDown>
+                    <wpfExtToolKit:IntegerUpDown Margin="2,2,2,2" VerticalAlignment="Center" FontSize="18" Minimum="20" Maximum="100" DefaultValue="30" Value="{Binding Maze.ProposedMazeWidthHeightCells, Mode=TwoWay}"></wpfExtToolKit:IntegerUpDown>
                 </Viewbox>
             </Grid>
             <Button Grid.Column="1" Grid.Row="0" Margin="2,2,2,2" Background="Pink" Command="{Binding GenerateMazeCommand}">
@@ -104,7 +104,7 @@
                         <ColumnDefinition Width="0.80*"></ColumnDefinition>
                         <ColumnDefinition Width="0.20*"></ColumnDefinition>
                     </Grid.ColumnDefinitions>
-                    <Slider Grid.Column="0" VerticalAlignment="Center" Minimum="1" Maximum="20" TickFrequency="1" TickPlacement="None" IsSnapToTickEnabled="True" Value="{Binding Maze.SimulationSpeed, Mode=TwoWay}"></Slider>
+                    <Slider Grid.Column="0" VerticalAlignment="Center" Minimum="1" Maximum="100" TickFrequency="1" TickPlacement="None" IsSnapToTickEnabled="True" Value="{Binding Maze.SimulationSpeed, Mode=TwoWay}"></Slider>
                     <Viewbox Grid.Column="1" Stretch="Uniform">
                         <Label Margin="0,0,0,0" Padding="0,0,0,0" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14" Content="{Binding Maze.SimulationSpeed, Mode=OneWay}"></Label>
                     </Viewbox>
