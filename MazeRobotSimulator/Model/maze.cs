@@ -17,14 +17,15 @@ namespace MazeRobotSimulator.Model
     {
         #region Fields
 
-        private int _mazeWidthHeightCells = Constants.DefaultMazeWidthHeightCells;  // The width/height of the maze (in cells)
-        private ObservableCollection<MazeCell> _mazeCells;                          // The maze (a collection of maze cells).
-        private Robot _robot;                                                       // The robot.
-        private SimulationState _simulationState = SimulationState.Default;         // The current state of the simulation.
-        private int _simulationSpeed = Constants.DefaultSimulationSpeed;            // The simulation speed.
-        private DispatcherTimer _simulationTimer;                                   // The simulation timer.
-        private TimeSpan _simulationTime;                                           // The simulation time.
-        private Random _randomNumberGenerator;                                      // A random number generator.
+        private int _mazeWidthHeightCells = Constants.DefaultMazeWidthHeightCells;          // The current width/height of the maze (in cells).
+        private int _proposedMazeWidthHeightCells = Constants.DefaultMazeWidthHeightCells;  // The proposed width/height of the maze (in cells).
+        private ObservableCollection<MazeCell> _mazeCells;                                  // The maze (a collection of maze cells).
+        private Robot _robot;                                                               // The robot.
+        private SimulationState _simulationState = SimulationState.Default;                 // The current state of the simulation.
+        private int _simulationSpeed = Constants.DefaultSimulationSpeed;                    // The simulation speed.
+        private DispatcherTimer _simulationTimer;                                           // The simulation timer.
+        private TimeSpan _simulationTime;                                                   // The simulation time.
+        private Random _randomNumberGenerator;                                              // A random number generator.
 
         #endregion
 
@@ -37,7 +38,6 @@ namespace MazeRobotSimulator.Model
         {
             try
             {
-                ProposedMazeWidthHeightCells = Constants.DefaultMazeWidthHeightCells;   // Set the initial maze size.
                 _randomNumberGenerator = new Random();  // Initialise the random number generator.
                 _robot = new Robot();                   // Initialise the robot.
                 
@@ -82,7 +82,26 @@ namespace MazeRobotSimulator.Model
                 }
             }
         }
-        
+
+        /// <summary>
+        /// Gets or sets the proposed width/height of the maze to be generated (in cells).
+        /// </summary>
+        public int ProposedMazeWidthHeightCells
+        {
+            get
+            {
+                return _proposedMazeWidthHeightCells;
+            }
+            set
+            {
+                if (value >= Constants.MinimumMazeWidthHeightCells && value <= Constants.MaximumMazeWidthHeightCells)
+                {
+                    _proposedMazeWidthHeightCells = value;
+                    RaisePropertyChanged("ProposedMazeWidthHeightCells");
+                }
+            }
+        }
+
         /// <summary>
         /// Gets the collection of maze cells.
         /// </summary>
@@ -146,7 +165,8 @@ namespace MazeRobotSimulator.Model
         {
             get
             {
-                return SimulationState == SimulationState.Default || SimulationState == SimulationState.MazeGenerated || SimulationState == SimulationState.Stopped;
+                return (SimulationState == SimulationState.Default && MazeWidthHeightCells != ProposedMazeWidthHeightCells) ||
+                    SimulationState == SimulationState.MazeGenerated || SimulationState == SimulationState.Stopped;
             }
         }
 
@@ -171,12 +191,7 @@ namespace MazeRobotSimulator.Model
                 return SimulationState == SimulationState.Running;
             }
         }
-
-        /// <summary>
-        /// Gets or sets the proposed width/height of the maze to be generated (in cells).
-        /// </summary>
-        public int ProposedMazeWidthHeightCells { get; set; }
-
+        
         /// <summary>
         /// Gets the or sets the simulation speed.
         /// </summary>
