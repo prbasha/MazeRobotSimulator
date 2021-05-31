@@ -78,7 +78,7 @@ namespace MazeRobotSimulator.Model
                 if (value >= Constants.MinimumMazeWidthHeightCells && value <= Constants.MaximumMazeWidthHeightCells)
                 {
                     _mazeWidthHeightCells = value;
-                    RaisePropertyChanged("MazeWidthHeightCells");
+                    RaisePropertyChanged();
                 }
             }
         }
@@ -97,7 +97,7 @@ namespace MazeRobotSimulator.Model
                 if (value >= Constants.MinimumMazeWidthHeightCells && value <= Constants.MaximumMazeWidthHeightCells)
                 {
                     _proposedMazeWidthHeightCells = value;
-                    RaisePropertyChanged("ProposedMazeWidthHeightCells");
+                    RaisePropertyChanged();
                 }
             }
         }
@@ -123,7 +123,7 @@ namespace MazeRobotSimulator.Model
             private set
             {
                 _mazeCells = value;
-                RaisePropertyChanged("MazeCells");
+                RaisePropertyChanged();
             }
         }
 
@@ -139,7 +139,7 @@ namespace MazeRobotSimulator.Model
             private set
             {
                 _simulationState = value;
-                RaisePropertyChanged("SimulationState");
+                RaisePropertyChanged();
                 RaisePropertyChanged("CanGenerateMaze");
                 RaisePropertyChanged("CanResetMaze");
                 RaisePropertyChanged("CanStartSimulation");
@@ -206,7 +206,7 @@ namespace MazeRobotSimulator.Model
                 if (value >= Constants.MinimumSimulationSpeed && value <= Constants.MaximumSimulationSpeed)
                 {
                     _simulationSpeed = value;
-                    RaisePropertyChanged("SimulationSpeed");
+                    RaisePropertyChanged();
 
                     // Update the simulation timer.
                     _simulationTimer.Interval = TimeSpan.FromMilliseconds(Constants.DefaultStepIntervalMilliSeconds / _simulationSpeed);
@@ -226,7 +226,7 @@ namespace MazeRobotSimulator.Model
             private set
             {
                 _simulationTime = value;
-                RaisePropertyChanged("SimulationTime");
+                RaisePropertyChanged();
             }
         }
 

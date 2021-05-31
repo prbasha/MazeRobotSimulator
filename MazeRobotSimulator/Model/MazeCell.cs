@@ -45,7 +45,7 @@ namespace MazeRobotSimulator.Model
             set
             {
                 _cellType = value;
-                RaisePropertyChanged("CellType");
+                RaisePropertyChanged();
             }
         }
 
@@ -61,7 +61,7 @@ namespace MazeRobotSimulator.Model
             set
             {
                 _cellRole = value;
-                RaisePropertyChanged("CellRole");
+                RaisePropertyChanged();
             }
         }
 
@@ -77,7 +77,7 @@ namespace MazeRobotSimulator.Model
             private set
             {
                 _cellMark = value;
-                RaisePropertyChanged("CellMark");
+                RaisePropertyChanged();
             }
         }
         
@@ -93,7 +93,7 @@ namespace MazeRobotSimulator.Model
             set
             {
                 _containsRobot = value;
-                RaisePropertyChanged("ContainsRobot");
+                RaisePropertyChanged();
             }
         }
 

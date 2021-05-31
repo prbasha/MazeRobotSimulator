@@ -50,7 +50,7 @@ namespace MazeRobotSimulator.Model
             private set
             {
                 _currentLocation = value;
-                RaisePropertyChanged("CurrentLocation");
+                RaisePropertyChanged();
             }
         }
 
